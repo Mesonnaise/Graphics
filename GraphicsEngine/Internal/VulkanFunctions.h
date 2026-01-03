@@ -1,0 +1,26 @@
+#pragma once
+#include<vulkan/vulkan.h>
+
+namespace Engine{
+  void LoadVulkanFunctions(VkDevice device);
+
+  extern PFN_vkGetDescriptorEXT pfnGetDescriptorEXT;
+  extern PFN_vkCmdBindDescriptorBuffersEXT pfnCmdBindDescriptorBuffersEXT;
+  extern PFN_vkGetDescriptorSetLayoutSizeEXT pfGetDescriptorSetLayoutSize;
+  extern PFN_vkGetDescriptorSetLayoutBindingOffsetEXT pfGetDescriptorSetLayoutBindingOffsetEXT;
+
+  extern PFN_vkCmdBindShadersEXT pfCmdBindShaders;
+  extern PFN_vkCreateShadersEXT pfCreateShader;
+  extern PFN_vkDestroyShaderEXT pfDestroyShader;
+
+  extern PFN_vkCmdSetDescriptorBufferOffsetsEXT pfnCmdSetDescriptorBufferOffsetsEXT;
+  extern PFN_vkCmdSetVertexInputEXT pfnCmdSetVertexInputEXT;
+  extern PFN_vkCmdSetPolygonModeEXT pfnCmdSetPolygonModeEXT;
+  extern PFN_vkCmdSetRasterizationSamplesEXT pfnCmdSetRasterizationSamplesEXT;
+  extern PFN_vkCmdSetSampleMaskEXT pfnCmdSetSampleMaskEXT;
+  extern PFN_vkCmdSetDepthClampEnableEXT pfnCmdSetDepthClampEnableEXT;
+  extern PFN_vkCmdSetAlphaToCoverageEnableEXT pfnCmdSetAlphaToCoverageEnableEXT;
+  extern PFN_vkCmdSetLogicOpEnableEXT pfnCmdSetLogicOpEnableEXT;
+  extern PFN_vkCmdSetColorBlendEnableEXT pfnCmdSetColorBlendEnableEXT;
+  extern PFN_vkCmdSetColorWriteMaskEXT pfnCmdSetColorWriteMaskEXT;
+}
