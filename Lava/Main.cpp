@@ -7,9 +7,7 @@
 #include<vector>
 #include<cmath>
 
-
 #define NOMINMAX
-
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 
@@ -17,7 +15,6 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include<GLFW/glfw3native.h>
 
-#include<glm/vec2.hpp>
 #include<glm/vec3.hpp>
 #include<glm/vec4.hpp>
 
@@ -25,10 +22,9 @@
 #include<Device.h>
 #include<Allocator.h>
 #include<CommandBufferBool.h>
-#include<FastComputePipeline.h>
 #include<Swapchain2.h>
 //#include<Swapchain.h>
-#include"Layer.h"
+#include"Blobs.h"
 
 using namespace std::chrono_literals;
 using CMappingT=std::vector<std::array<float,3>>;
@@ -61,11 +57,11 @@ static uint32_t ViewHeight=1080;
 //37.561356,0.6431,1
 //47.6313,0.4795,0.9669
 
-std::vector<std::array<float,3>> ColorMapping={
-  {247.13,1.00,0.65},
-  {255.10,0.6942,0.8078},
-  {268.90,0.6431,1.00},
-  {278.97,0.4795,0.9669}
+std::array<glm::vec3,4> ColorMapping={
+  glm::vec3{247.13,1.00,0.65},
+  glm::vec3{255.10,0.6942,0.8078},
+  glm::vec3{268.90,0.6431,1.00},
+  glm::vec3{278.97,0.4795,0.9669}
 };
 
 static const std::vector<std::array<uint32_t,3>> ColorPalettes={
@@ -82,68 +78,40 @@ static const std::vector<std::array<uint32_t,3>> ColorPalettes={
 
 
 
-void SetColor(Layer *layer){
+void SetColor(Blobs *blobHandler){
   auto palletRNG=std::random_device();
   auto dist=std::uniform_real_distribution<float>(0,360.0f);
   float offset=dist(palletRNG);
   
   for(int i=0;i<4;i++){
-    ColorMapping[i][0]=std::fmod(ColorMapping[i][0]+offset,360.0f);
-    std::cout<<std::format("{},{},{}\n",ColorMapping[i][0],ColorMapping[i][1],ColorMapping[i][2]);
+    ColorMapping[i].x=std::fmod(ColorMapping[i].x+offset,360.0f);
+    std::cout<<std::format("{},{},{}\n",ColorMapping[i].x,ColorMapping[i].y,ColorMapping[i].z);
   }
   std::cout<<"\n";
-  layer->Color(ColorMapping);
+  blobHandler->SetColor(ColorMapping);
 }
-
-
-static void SetBlobParams(Layer *layer){
-  float speedScale=2.0f;
-  auto area=ViewWidth*ViewHeight;
-
-  layer->BlobCount({ViewWidth/160,ViewWidth/80,ViewWidth/60});
-  layer->BlobSize(0,{172.8,230.4});
-  layer->FloatRate(0,{1.0f*speedScale,1.5f*speedScale});
-
-  layer->BlobSize(1,{57.6,153.6});
-  layer->FloatRate(1,{1.0f*speedScale,2.5f*speedScale});
-
-  layer->BlobSize(2,{19.2,96});
-  layer->FloatRate(2,{1.75f*speedScale,3.0f*speedScale});
-}
-
 
 void ErrorCallbackGLFW(int error,const char *description){
   std::cout<<std::format("{}\n",description);
 }
-
 
 void CloseWindowCB(GLFWwindow *window){
   std::cout<<"Window Closing\n";
 }
 
 void KeyWindowCB(GLFWwindow *window,int key,int scancode,int action,int mods){
-
-
   if(key==32&&action==1){
-    Layer *blobHandler=reinterpret_cast<Layer *>(glfwGetWindowUserPointer(window));
+    Blobs *blobHandler=reinterpret_cast<Blobs *>(glfwGetWindowUserPointer(window));
     SetColor(blobHandler);
+
   }else if(key!=32)
     std::cout<<std::format(
       "key {} scancode {} action {} mods {}\n",
       key,scancode,action,mods);
 }
 
-
-
 void SizeWindowCB(GLFWwindow *window,int width,int height){
-  Layer *blobHandler=reinterpret_cast<Layer *>(glfwGetWindowUserPointer(window));
-  blobHandler->ViewPort(width,height);
-  //std::cout<<std::format("Window {} {}\n",width,height);
-  ViewWidth=width;
-  ViewHeight=height;
-  
-  SetBlobParams(blobHandler);
-
+  //Blobs *blobHandler=reinterpret_cast<Blobs *>(glfwGetWindowUserPointer(window));
 }
 
 const auto FrameTime=11ms;
@@ -187,26 +155,13 @@ int main(){
   auto cmdPool=Engine::CommandBufferBool::Create(device,queue->QueueFamily());
   auto CMDBuffer=cmdPool->AllocateBuffers(1)[0];
 
-  Layer layer(device,allocator);
-  glfwSetWindowUserPointer(window,&layer);
+  Blobs blobs(device,allocator);
+  SetColor(&blobs);
+  blobs.SetBlobDensity({0.00000482,0.00000965,0.00001546});
+  blobs.SetBlobRadius({200,105,60},{20.0,30,15});
+  blobs.SetBlobFloatSpeed({0.10,0.2,0.35},{0.075,0.05,0.05});
 
-
-  layer.ViewPort(ViewWidth,ViewHeight);
-  //layer.BlobCount({12,24,32});
-  SetBlobParams(&layer);
-  SetColor(&layer);
-  
-
-  //float speedScale=2.0f;
-
-  //layer.BlobSize(0,{ViewWidth*0.09f,ViewWidth*0.12f});
-  //layer.FloatRate(0,{1.0f*speedScale,1.5f*speedScale});
-
-  //layer.BlobSize(1,{ViewWidth*0.03f,ViewWidth*0.08f});
-  //layer.FloatRate(1,{1.0f*speedScale,2.5f*speedScale});
-
-  //layer.BlobSize(2,{ViewWidth*0.01f,ViewWidth*0.05f});
-  //layer.FloatRate(2,{1.75f*speedScale,3.0f*speedScale});
+  glfwSetWindowUserPointer(window,&blobs);
 
   while(!glfwWindowShouldClose(window)){
     const auto startTime=std::chrono::high_resolution_clock::now();
@@ -228,8 +183,8 @@ int main(){
       VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT,
       VK_IMAGE_LAYOUT_GENERAL);
 
-    layer.BackingImage(swapImage,swapView);
-    layer.Pass(CMDBuffer);
+    blobs.SetBackingImage(swapImage,swapView);
+    blobs.Step(CMDBuffer,11.0);
 
     swapImage->TransitionLayout(
       CMDBuffer,

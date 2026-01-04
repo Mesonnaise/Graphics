@@ -104,7 +104,7 @@ namespace Engine{
 
     if(mPushConstantSize){
       if(mPushConstantSize!=mPushConstantData.size())
-        throw std::runtime_error("Push constant data has be assigned");
+        throw std::runtime_error(std::format("Push constant size {} bytes, instead of {} bytes",mPushConstantData.size(),mPushConstantSize));
 
       VkShaderStageFlags stageFlags=0;
       for(auto stage:mShaderOjbect->Stages())
