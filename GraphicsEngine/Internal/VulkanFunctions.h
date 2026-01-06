@@ -23,4 +23,5 @@ namespace Engine{
   extern PFN_vkCmdSetLogicOpEnableEXT pfnCmdSetLogicOpEnableEXT;
   extern PFN_vkCmdSetColorBlendEnableEXT pfnCmdSetColorBlendEnableEXT;
   extern PFN_vkCmdSetColorWriteMaskEXT pfnCmdSetColorWriteMaskEXT;
+  extern PFN_vkCmdSetProvokingVertexModeEXT pfnCmdSetProvokingVertexModeEXT;
 }

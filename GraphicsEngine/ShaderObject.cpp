@@ -131,6 +131,17 @@ namespace Engine{
 
     AllocateSetLayouts();
 
+    if(mPipelineBindPoint==VK_PIPELINE_BIND_POINT_GRAPHICS){
+      VkPipelineStageFlags allStages=0;
+      for(auto stage:mStages)
+        allStages|=stage;
+
+      for(auto &[stages,layout]:mStageLayouts){
+        if((stages&allStages)!=allStages)
+          throw std::runtime_error("All stages must have identical descriptor set layouts");
+      }
+    }
+
     std::vector<VkPushConstantRange> pushRanges;
     if(HashPushConstant()){
       VkShaderStageFlags stages=0;

@@ -27,9 +27,12 @@ namespace Engine{
       VK_COLOR_COMPONENT_R_BIT|VK_COLOR_COMPONENT_G_BIT|
       VK_COLOR_COMPONENT_B_BIT|VK_COLOR_COMPONENT_A_BIT;
 
-    vkCmdSetDepthTestEnable(CMDBuffer,VK_FALSE);
+    vkCmdSetDepthCompareOp(CMDBuffer,VK_COMPARE_OP_LESS);
+    vkCmdSetDepthWriteEnable(CMDBuffer,VK_TRUE);
+    vkCmdSetDepthTestEnable(CMDBuffer,VK_TRUE);
     vkCmdSetRasterizerDiscardEnable(CMDBuffer,VK_FALSE);
-    vkCmdSetCullMode(CMDBuffer,VK_CULL_MODE_NONE);
+    vkCmdSetFrontFace(CMDBuffer,VK_FRONT_FACE_COUNTER_CLOCKWISE);
+    vkCmdSetCullMode(CMDBuffer,VK_CULL_MODE_BACK_BIT);
     vkCmdSetStencilTestEnable(CMDBuffer,VK_FALSE);
     vkCmdSetDepthBiasEnable(CMDBuffer,VK_FALSE);
     vkCmdSetDepthBoundsTestEnable(CMDBuffer,VK_FALSE);
@@ -42,6 +45,7 @@ namespace Engine{
     pfnCmdSetColorBlendEnableEXT(CMDBuffer,0,1,&vkFalse);
     pfnCmdSetColorWriteMaskEXT(CMDBuffer,0,1,&MaskColorComponent);
     vkCmdSetPrimitiveTopology(CMDBuffer,VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pfnCmdSetProvokingVertexModeEXT(CMDBuffer,VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT);
     vkCmdSetPrimitiveRestartEnable(CMDBuffer,VK_FALSE);
   }
 }

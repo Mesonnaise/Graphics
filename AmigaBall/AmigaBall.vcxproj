@@ -18,60 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Allocator.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="CommandBufferBool.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="DescriptorSetLayout.h" />
-    <ClInclude Include="Device.h" />
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="FastComputePipeline.h" />
-    <ClInclude Include="FastGraphicPipeline.h" />
-    <ClInclude Include="FastPipeline.h" />
-    <ClInclude Include="Image.h" />
-    <ClInclude Include="ImageView.h" />
-    <ClInclude Include="Instance.h" />
-    <ClInclude Include="Internal\VulkanFunctions.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="PipelineLayout.h" />
-    <ClInclude Include="Reflection.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="ShaderObject.h" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="Swapchain.h" />
-    <ClInclude Include="Swapchain2.h" />
-    <ClInclude Include="Util.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Allocator.cpp" />
-    <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="CommandBufferBool.cpp" />
-    <ClCompile Include="DescriptorSetLayout.cpp" />
-    <ClCompile Include="Device.cpp" />
-    <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="FastComputePipeline.cpp" />
-    <ClCompile Include="FastGraphicPipeline.cpp" />
-    <ClCompile Include="FastPipeline.cpp" />
-    <ClCompile Include="Image.cpp" />
-    <ClCompile Include="ImageView.cpp" />
-    <ClCompile Include="Instance.cpp" />
-    <ClCompile Include="Internal\VulkanFunctions.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="PipelineLayout.cpp" />
-    <ClCompile Include="Reflection.cpp" />
-    <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="ShaderObject.cpp" />
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="Swapchain.cpp" />
-    <ClCompile Include="Swapchain2.cpp" />
-    <ClCompile Include="Util.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{74520132-f3ec-4276-a96f-f32a8fc1e26e}</ProjectGuid>
-    <RootNamespace>GraphicsEngine</RootNamespace>
+    <ProjectGuid>{18a3504e-c2d4-4671-8f8f-7ffd3c924fae}</ProjectGuid>
+    <RootNamespace>AmigaBall</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -89,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -154,17 +105,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;C:\glfw-3.4\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;C:\glfw-3.4\include;$(SolutionDir)GraphicsEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Lib>
-      <AdditionalLibraryDirectories>C:\glfw-3.4\lib-vc2022;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;spirv-cross-cored.lib;spirv-cross-cppd.lib;spirv-cross-glsld.lib;spirv-cross-reflectd.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -175,17 +121,40 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;C:\glfw-3.4\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;C:\glfw-3.4\include;$(SolutionDir)GraphicsEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Lib>
-      <AdditionalDependencies>vulkan-1.lib;spirv-cross-core.lib;spirv-cross-cpp.lib;spirv-cross-glsl.lib;spirv-cross-reflect.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\glfw-3.4\lib-vc2022;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="AmigaBallFragment.frag.glsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN_SDK)\Bin\glslangValidator.exe -V -S frag -o $(OutDir)\AmigaBallFragment.spv %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(VULKAN_SDK)\Bin\glslangValidator.exe -V -S frag -o $(OutDir)\AmigaBallFragment.spv %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\AmigaBallFragment.spv</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\AmigaBallFragment.spv</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="AmigaBallVertex.vert.glsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VULKAN_SDK)\Bin\glslangValidator.exe -V -S vert -o $(OutDir)\AmigaBallVertex.spv %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\AmigaBallVertex.spv</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(VULKAN_SDK)\Bin\glslangValidator.exe -V -S vert -o $(OutDir)\AmigaBallVertex.spv %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\AmigaBallVertex.spv</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GraphicsEngine\GraphicsEngine.vcxproj">
+      <Project>{74520132-f3ec-4276-a96f-f32a8fc1e26e}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BallVertices.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

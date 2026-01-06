@@ -20,6 +20,8 @@ namespace Engine{
   extern PFN_vkCmdSetLogicOpEnableEXT pfnCmdSetLogicOpEnableEXT=nullptr;
   extern PFN_vkCmdSetColorBlendEnableEXT pfnCmdSetColorBlendEnableEXT=nullptr;
   extern PFN_vkCmdSetColorWriteMaskEXT pfnCmdSetColorWriteMaskEXT=nullptr;
+  extern PFN_vkCmdSetProvokingVertexModeEXT pfnCmdSetProvokingVertexModeEXT=nullptr;
+
 
   void LoadVulkanFunctions(VkDevice device){
     if(pfnCmdSetColorWriteMaskEXT==nullptr){
@@ -56,9 +58,11 @@ namespace Engine{
       pfnCmdSetLogicOpEnableEXT=reinterpret_cast<PFN_vkCmdSetLogicOpEnableEXT>(
         vkGetDeviceProcAddr(device,"vkCmdSetLogicOpEnableEXT"));
       pfnCmdSetColorBlendEnableEXT=reinterpret_cast<PFN_vkCmdSetColorBlendEnableEXT>(
-        vkGetDeviceProcAddr(device,"PFN_vkCmdSetColorBlendEnableEXT"));
+        vkGetDeviceProcAddr(device,"vkCmdSetColorBlendEnableEXT"));
       pfnCmdSetColorWriteMaskEXT=reinterpret_cast<PFN_vkCmdSetColorWriteMaskEXT>(
         vkGetDeviceProcAddr(device,"vkCmdSetColorWriteMaskEXT"));
+      pfnCmdSetProvokingVertexModeEXT=reinterpret_cast<PFN_vkCmdSetProvokingVertexModeEXT>(
+        vkGetDeviceProcAddr(device,"vkCmdSetProvokingVertexModeEXT"));
     }
   }
 }

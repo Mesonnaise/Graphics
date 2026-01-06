@@ -1,4 +1,5 @@
 #pragma once
+#include<array>
 #include<memory>
 #include<filesystem>
 #include"Device.h"
@@ -24,16 +25,23 @@ namespace Engine{
     std::map<std::string,ImageViewPtr> mImageViews;
 
     BufferPtr mVertexBuffer=nullptr;
-    ImagePtr mOutputImage=nullptr;
+    BaseImagePtr mOutputImage=nullptr;
     ImageViewPtr mOutputImageView=nullptr;
+    ImageViewPtr mOutputImageViewDepth=nullptr;
+    std::array<float,4> mClearColor={1.0f,1.0f,1.0f,1.0f};
+    bool mFlipY=false;
+
 
   protected:
-    FastGraphicPipeline(DevicePtr device,AllocatorPtr allocator,std::vector<std::filesystem::path> shaders);
+    FastGraphicPipeline(DevicePtr device,AllocatorPtr allocator,std::vector<std::filesystem::path> shaders,bool flipY);
 
     void BuildDescriptorBuffer();
   public:
-    static inline std::shared_ptr<FastGraphicPipeline> Create(DevicePtr device,AllocatorPtr allocator,std::vector<std::filesystem::path> shaders){
-      auto p=new FastGraphicPipeline(device,allocator,shaders);
+    static inline std::shared_ptr<FastGraphicPipeline> Create(
+      DevicePtr device,AllocatorPtr allocator,
+      std::vector<std::filesystem::path> shaders,bool flipY=false){
+
+      auto p=new FastGraphicPipeline(device,allocator,shaders,flipY);
       return std::shared_ptr<FastGraphicPipeline>(p);
     }
     inline std::vector<std::string> GetVariableNames(){
@@ -50,13 +58,21 @@ namespace Engine{
         return nullptr;
       return mImages[name];
     }
-
+    inline void AssignClearColor(std::array<float,4> color){
+      mClearColor=color;
+    }
     inline void AssignBuffer(std::string name,BufferPtr buffer){
       mBuffers[name]=buffer;
     }
     inline void AssignImage(std::string name,ImagePtr image){
       mImages[name]=image;
     }
+
+    inline void AssignVertexBuffer(BufferPtr &buffer){
+      mVertexBuffer=buffer;
+    }
+
+    void SetFrameBuffer(BaseImagePtr image,ImageViewPtr view);
     void QuickCreateBuffers();
     void PopulateCommandBuffer(
       VkCommandBuffer CMDBuffer,
