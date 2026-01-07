@@ -44,6 +44,13 @@ struct TransformMatrices{
   glm::mat4 projection;
 };
 
+std::tuple<double,double> BallPosition(double t){
+  double x=(std::abs(std::fmod(t*0.17+0.357,2.0)-1.0)-0.5)*5.0;
+  double y=(std::abs(std::sin(t*std::numbers::pi*1.0))*-2.0)+1.0;
+
+  return {x,y};
+}
+
 int main(){
   glfwInit();
 
@@ -51,7 +58,7 @@ int main(){
   const char **extBuffer=glfwGetRequiredInstanceExtensions(&extBufferCount);
   auto  inst=Engine::Instance::Create(std::vector<const char *>(extBuffer,extBuffer+extBufferCount));
 
-  GLFWwindow *window=glfwCreateWindow(ViewWidth,ViewHeight,"Window Title",NULL,NULL);
+  GLFWwindow *window=glfwCreateWindow(ViewWidth,ViewHeight,"Ball",NULL,NULL);
 
   if(!window){
     glfwTerminate();
@@ -78,7 +85,7 @@ int main(){
 
   auto pipeline=Engine::FastGraphicPipeline::Create(device,allocator,{vertexPath,fragmentPath},true);
   pipeline->QuickCreateBuffers();
-  pipeline->AssignClearColor({0.85f,0.85f,0.85f,0.0f});
+  pipeline->AssignClearColor({0.85f,0.85f,0.85f,1.0f});
 
   auto transforms=static_cast<TransformMatrices *>(pipeline->GetBuffer("Matrices")->Mapped());
   transforms->model=glm::mat4(1.0f);
@@ -102,18 +109,27 @@ int main(){
   
   auto cmdPool=Engine::CommandBufferBool::Create(device,queue->QueueFamily());
   auto CMDBuffer=cmdPool->AllocateBuffers(1)[0];
-  float rotation=0.0f;
+  double step=0.0;
+
   while(!glfwWindowShouldClose(window)){
     const auto startTime=std::chrono::high_resolution_clock::now();
+    auto [swapImage,swapView]=swapchain->Next();
 
-    rotation+=0.01f;
-    rotation=std::fmodf(rotation,std::numbers::pi*2.0f);
-    transforms->model=glm::translate(glm::mat4(1.0f),{0.0f,0.0f,0.0f});
+    step+=0.01f;
+
+    auto [ballX,ballY]=BallPosition(step);
+
+    auto rotation=std::fmodf(step,std::numbers::pi*2.0f);
+    transforms->model=glm::translate(glm::mat4(1.0f),{ballX,ballY,0.0f});
     transforms->model=glm::rotate(transforms->model,0.52f,{0,0.0,1.0});
     transforms->model=glm::rotate(transforms->model,rotation,{0,1,0});
     
+    auto swapExtent=swapImage->Extent();
+    transforms->projection=glm::perspective(
+      glm::radians(60.0f),
+      (float)swapExtent.width/(float)swapExtent.height,
+      0.1f,100.0f);
 
-    auto [swapImage,swapView]=swapchain->Next();
     pipeline->SetFrameBuffer(swapImage,swapView);
     VkCommandBufferBeginInfo info={
       .sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,

@@ -45,7 +45,6 @@ namespace Engine{
       VkCommandBuffer CMDBuffer,
       uint32_t vertexCount,uint32_t instanceCount,
       uint32_t firstVertex,uint32_t firstInstance);
-
   };
 
   using FastGraphicPipelinePtr=std::shared_ptr<FastGraphicPipeline>;
