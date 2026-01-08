@@ -14,16 +14,19 @@
 namespace Engine{
   class FastGraphicPipeline:public FastPipeline{
     BufferPtr mVertexBuffer=nullptr;
-    BaseImagePtr mOutputImage=nullptr;
-    ImageViewPtr mOutputImageView=nullptr;
+
+    std::vector<VkRenderingAttachmentInfo> mAttachments;
+    std::vector<ImageViewPtr> mAttachmentsView;
+
     ImageViewPtr mDepthAttachmentView=nullptr;
-    VkRenderingAttachmentInfo mDepthAttachment;
+    VkRenderingAttachmentInfo mDepthAttachment={};
     ImageViewPtr mStencilAttachmentView=nullptr;
-    VkRenderingAttachmentInfo mStencilAttachment;
+    VkRenderingAttachmentInfo mStencilAttachment={};
 
 
     std::array<float,4> mClearColor={1.0f,1.0f,1.0f,1.0f};
     bool mFlipY=false;
+    VkExtent2D mViewport;
 
   protected:
     FastGraphicPipeline(DevicePtr device,AllocatorPtr allocator,std::vector<std::filesystem::path> shaders,bool flipY);
@@ -41,16 +44,19 @@ namespace Engine{
     void AddAttachment(ImageViewPtr view, VkRenderingAttachmentInfo attachment);
     void AddDepthAttachment(ImageViewPtr view);
     void AddStencilAttachment(ImageViewPtr view);
-
-    inline void AssignClearColor(std::array<float,4> color){
-      mClearColor=color;
+    void ClearAttachments();
+    inline void SetViewport(VkExtent2D viewport){
+      mViewport=viewport;
+    }
+    inline void SetViewport(VkExtent3D viewport){
+      mViewport.height=viewport.height;
+      mViewport.width=viewport.width;
     }
 
     inline void AssignVertexBuffer(BufferPtr &buffer){
       mVertexBuffer=buffer;
     }
 
-    void SetFrameBuffer(BaseImagePtr image,ImageViewPtr view);
     void PopulateCommandBuffer(
       VkCommandBuffer CMDBuffer,
       uint32_t vertexCount,uint32_t instanceCount,

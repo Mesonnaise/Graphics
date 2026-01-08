@@ -6,9 +6,14 @@ namespace Engine{
   FastGraphicPipeline::FastGraphicPipeline(DevicePtr device,AllocatorPtr allocator,std::vector<std::filesystem::path> shaders,bool flipY):
     FastPipeline(device,allocator,shaders),mFlipY(flipY){}
 
-  void FastGraphicPipeline::SetFrameBuffer(BaseImagePtr image,ImageViewPtr view){
-    mOutputImage=image;
-    mOutputImageView=view;
+  void FastGraphicPipeline::AddAttachment(ImageViewPtr view){
+    AddAttachment(view,view->BasicAttachment(VK_IMAGE_LAYOUT_GENERAL));
+  }
+
+  void FastGraphicPipeline::AddAttachment(ImageViewPtr view,VkRenderingAttachmentInfo attachment){
+    mAttachmentsView.push_back(view);
+    attachment.imageView=view->Handle();
+    mAttachments.push_back(attachment);
   }
 
   void FastGraphicPipeline::AddDepthAttachment(ImageViewPtr view){
@@ -25,29 +30,30 @@ namespace Engine{
     mDepthAttachment.clearValue.depthStencil.depth=1.0f;
   }
 
+  void FastGraphicPipeline::ClearAttachments(){
+    mAttachmentsView.clear();
+    mAttachments.clear();
+  }
+
   void FastGraphicPipeline::PopulateCommandBuffer(
     VkCommandBuffer CMDBuffer,
     uint32_t vertexCount,uint32_t instanceCount,
     uint32_t firstVertex,uint32_t firstInstance){
 
-    auto extent=mOutputImage->Extent();
-
     BuildDescriptorBuffer();
-
-    float height=(float)extent.height;
 
     VkViewport viewPort={
       .x=0.0f,
       .y=0.0f,
-      .width=(float)extent.width,
-      .height=height,
+      .width=(float)mViewport.width,
+      .height=(float)mViewport.height,
       .minDepth=0.0f,
       .maxDepth=1.0f
     };
 
     if(mFlipY){
-      viewPort.y=height;
-      viewPort.height=-height;
+      viewPort.y=viewPort.height;
+      viewPort.height*=-1.0f;
     }
 
     VkVertexInputBindingDescription2EXT vertexInputBinding={
@@ -68,42 +74,9 @@ namespace Engine{
       .offset=0
     };
 
-    VkRenderingAttachmentInfo attachmentInfo={
-      .sType=VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-      .pNext=nullptr,
-      .imageView=mOutputImageView->Handle(),
-      .imageLayout=VK_IMAGE_LAYOUT_GENERAL,
-      .resolveMode=VK_RESOLVE_MODE_NONE,
-      .resolveImageView=VK_NULL_HANDLE,
-      .resolveImageLayout=VK_IMAGE_LAYOUT_UNDEFINED,
-      .loadOp=VK_ATTACHMENT_LOAD_OP_CLEAR,
-      .storeOp=VK_ATTACHMENT_STORE_OP_STORE,
-      .clearValue={.color={
-        mClearColor[0],mClearColor[1],
-        mClearColor[2],mClearColor[3]
-      }}
-    };
-
-    if(mClearColor[3]==0.0f)
-      attachmentInfo.loadOp=VK_ATTACHMENT_LOAD_OP_LOAD;
-
-    /*
-    VkRenderingAttachmentInfo attachmentDepthInfo={
-      .sType=VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-      .pNext=nullptr,
-      .imageView=mOutputImageViewDepth->Handle(),
-      .imageLayout=VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-      .resolveMode=VK_RESOLVE_MODE_NONE,
-      .resolveImageView=VK_NULL_HANDLE,
-      .resolveImageLayout=VK_IMAGE_LAYOUT_UNDEFINED,
-      .loadOp=VK_ATTACHMENT_LOAD_OP_CLEAR,
-      .storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE,
-      .clearValue={.depthStencil{.depth=1.0f}}
-    };
-    */
     VkRect2D scissor={
       .offset={0,0},
-      .extent={extent.width,extent.height}
+      .extent=mViewport
     };
     VkRenderingInfo renderingInfo={
       .sType=VK_STRUCTURE_TYPE_RENDERING_INFO,
@@ -111,18 +84,21 @@ namespace Engine{
       .flags=0,
       .renderArea={
         .offset={0,0},
-        .extent={extent.width,extent.height}
+        .extent=mViewport
       },
       .layerCount=1,
       .viewMask=0,
-      .colorAttachmentCount=1,
-      .pColorAttachments=&attachmentInfo,
+      .colorAttachmentCount=(uint32_t)mAttachments.size(),
+      .pColorAttachments=mAttachments.data(),
       .pDepthAttachment=nullptr//&attachmentDepthInfo
     };
 
     if(mDepthAttachmentView!=nullptr)
       renderingInfo.pDepthAttachment=&mDepthAttachment;
     
+    if(mStencilAttachmentView!=nullptr)
+      renderingInfo.pStencilAttachment=&mStencilAttachment;
+
 
     std::vector<VkDeviceSize> layoutOffsets;
     std::vector<uint32_t> layoutIndecies;

@@ -85,7 +85,7 @@ int main(){
 
   auto pipeline=Engine::FastGraphicPipeline::Create(device,allocator,{vertexPath,fragmentPath},true);
   pipeline->QuickCreateBuffers();
-  pipeline->AssignClearColor({0.85f,0.85f,0.85f,1.0f});
+  //pipeline->AssignClearColor({0.85f,0.85f,0.85f,1.0f});
 
   auto transforms=static_cast<TransformMatrices *>(pipeline->GetBuffer("Matrices")->Mapped());
   transforms->model=glm::mat4(1.0f);
@@ -130,7 +130,13 @@ int main(){
       (float)swapExtent.width/(float)swapExtent.height,
       0.1f,100.0f);
 
-    pipeline->SetFrameBuffer(swapImage,swapView);
+    pipeline->ClearAttachments();
+    
+    VkRenderingAttachmentInfo attach=swapView->BasicAttachment(VK_IMAGE_LAYOUT_GENERAL);
+    attach.clearValue.color={0.85,0.85,0.85,1.0};
+    pipeline->AddAttachment(swapView,attach);
+
+    pipeline->SetViewport(swapImage->Extent());
     VkCommandBufferBeginInfo info={
       .sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
       .pNext=nullptr,
