@@ -11,6 +11,20 @@ namespace Engine{
     mOutputImageView=view;
   }
 
+  void FastGraphicPipeline::AddDepthAttachment(ImageViewPtr view){
+    mDepthAttachmentView=view;
+    mDepthAttachment=view->BasicAttachment(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    mDepthAttachment.clearValue.depthStencil.depth=1.0f;
+  }
+
+  void FastGraphicPipeline::AddStencilAttachment(ImageViewPtr view){
+    mDepthAttachmentView=view;
+    mDepthAttachment=view->BasicAttachment(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    mDepthAttachment.clearValue.depthStencil.depth=1.0f;
+  }
+
   void FastGraphicPipeline::PopulateCommandBuffer(
     VkCommandBuffer CMDBuffer,
     uint32_t vertexCount,uint32_t instanceCount,
@@ -105,6 +119,10 @@ namespace Engine{
       .pColorAttachments=&attachmentInfo,
       .pDepthAttachment=nullptr//&attachmentDepthInfo
     };
+
+    if(mDepthAttachmentView!=nullptr)
+      renderingInfo.pDepthAttachment=&mDepthAttachment;
+    
 
     std::vector<VkDeviceSize> layoutOffsets;
     std::vector<uint32_t> layoutIndecies;

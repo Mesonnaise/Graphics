@@ -16,7 +16,12 @@ namespace Engine{
     BufferPtr mVertexBuffer=nullptr;
     BaseImagePtr mOutputImage=nullptr;
     ImageViewPtr mOutputImageView=nullptr;
-    ImageViewPtr mOutputImageViewDepth=nullptr;
+    ImageViewPtr mDepthAttachmentView=nullptr;
+    VkRenderingAttachmentInfo mDepthAttachment;
+    ImageViewPtr mStencilAttachmentView=nullptr;
+    VkRenderingAttachmentInfo mStencilAttachment;
+
+
     std::array<float,4> mClearColor={1.0f,1.0f,1.0f,1.0f};
     bool mFlipY=false;
 
@@ -31,6 +36,11 @@ namespace Engine{
       auto p=new FastGraphicPipeline(device,allocator,shaders,flipY);
       return std::shared_ptr<FastGraphicPipeline>(p);
     }
+
+    void AddAttachment(ImageViewPtr view);
+    void AddAttachment(ImageViewPtr view, VkRenderingAttachmentInfo attachment);
+    void AddDepthAttachment(ImageViewPtr view);
+    void AddStencilAttachment(ImageViewPtr view);
 
     inline void AssignClearColor(std::array<float,4> color){
       mClearColor=color;

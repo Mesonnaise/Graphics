@@ -30,6 +30,9 @@ namespace Engine{
       return mHandle;
     }
     size_t GetDescriptor(void *WritePointer,VkDescriptorType descriptorType,VkImageLayout layout);
+    VkRenderingAttachmentInfo BasicAttachment(VkImageLayout layout);
+
+
   };
 
   using ImageViewPtr=std::shared_ptr<ImageView>;
