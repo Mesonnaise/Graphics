@@ -182,7 +182,7 @@ int main(){
     attach.clearValue.color={0.85,0.85,0.85,1.0};
     ballPipeline->AddAttachment(swapView,attach);
     //ballPipeline->AddDepthAttachment(stencil.mView);
-    //ballPipeline->AddStencilAttachment(stencil.mView);
+    ballPipeline->AddStencilAttachment(stencil.mView);
     ballPipeline->SetViewport(swapImage->Extent());
 
     //dropShadowPipeline->AssignImage("OutputImage",swapImage,swapView);
@@ -199,6 +199,15 @@ int main(){
     //******************* Start Command Buffer **************************
 
     vkBeginCommandBuffer(CMDBuffer,&info);
+    stencil.mImage->TransitionLayout(
+      CMDBuffer,
+      VK_PIPELINE_STAGE_2_NONE,0,
+      VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT,
+      VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT|VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    );
+
+
     swapImage->TransitionLayout(
       CMDBuffer,
       VK_PIPELINE_STAGE_2_NONE,0,
@@ -206,13 +215,7 @@ int main(){
       VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
       VK_IMAGE_LAYOUT_GENERAL);
 
-    //stencil.mImage->TransitionLayout(
-    //  CMDBuffer,
-    //  VK_PIPELINE_STAGE_2_NONE,0,
-    //  VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT,
-    //  VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT|VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-    //  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-    //);
+
 
     ballPipeline->PopulateCommandBuffer(CMDBuffer,(uint32_t)BallVertices.size(),1,0,0);
 
