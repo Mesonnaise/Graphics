@@ -59,6 +59,37 @@ namespace Engine{
       throw std::runtime_error("Unable to create image view");
   }
 
+  ImageView::ImageView(
+    DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,
+    VkFormat format,VkImageAspectFlags aspect):
+    mDevice(device),mImage(image){
+
+    VkImageViewCreateInfo info={
+      .sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+      .pNext=nullptr,
+      .flags=0,
+      .image=mImage->Handle(),
+      .viewType=viewType,
+      .format=format,
+      .components={
+        .r=VK_COMPONENT_SWIZZLE_IDENTITY,
+        .g=VK_COMPONENT_SWIZZLE_IDENTITY,
+        .b=VK_COMPONENT_SWIZZLE_IDENTITY,
+        .a=VK_COMPONENT_SWIZZLE_IDENTITY
+      },
+      .subresourceRange={
+        .aspectMask=aspect,
+        .baseMipLevel=0,
+        .levelCount=1,
+        .baseArrayLayer=0,
+        .layerCount=1
+      }
+    };
+    auto status=vkCreateImageView(mDevice->Handle(),&info,nullptr,&mHandle);
+    if(status!=VK_SUCCESS)
+      throw std::runtime_error("Unable to create image view");
+  }
+
   ImageView::~ImageView(){
     vkDestroyImageView(mDevice->Handle(),mHandle,nullptr);
   }

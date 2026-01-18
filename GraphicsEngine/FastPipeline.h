@@ -23,7 +23,7 @@ namespace Engine{
     ShaderObjectPtr mShaderObject=nullptr;
     PipelineLayoutPtr mLayout=nullptr;
 
-    bool mUseBuffer=true;
+    bool mUseBuffer=false;
     bool mRebuildDescriptors=false;
     DescriptorBufferPtr mDescriptorBuffer=nullptr;
 

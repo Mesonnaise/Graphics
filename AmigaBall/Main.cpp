@@ -56,6 +56,7 @@ struct Stencil{
   Engine::AllocatorPtr mAllocator;
   Engine::BaseImagePtr mImage;
   Engine::ImageViewPtr mView;
+  Engine::ImageViewPtr mViewStencil;
 
   void CreateStencil(int width,int height){
     mImage=mAllocator->CreateImage(
@@ -64,6 +65,9 @@ struct Stencil{
       VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT|VK_IMAGE_USAGE_SAMPLED_BIT);
 
     mView=mImage->CreateImageView();
+    mViewStencil=Engine::ImageView::Create(
+      mDevice,mImage,VK_IMAGE_VIEW_TYPE_2D,
+      mImage->Format(),VK_IMAGE_ASPECT_STENCIL_BIT);
   }
 };
 
@@ -97,7 +101,6 @@ int main(){
   }
 
   glfwSetWindowSizeCallback(window,SizeWindowCB);
-  glfwSetWindowPos(window,1750,600);
 
   std::filesystem::path workingDir=std::filesystem::current_path();
   auto vertexPath=workingDir;
@@ -131,7 +134,6 @@ int main(){
     .ShadowColor={0.0f,0.0f,0.0f,0.5f},
     .ShadowOffset={0.1f,0.1f}
   };
-
 
   auto transforms=static_cast<TransformMatrices *>(ballPipeline->GetBuffer("Matrices")->Mapped());
   transforms->model=glm::mat4(1.0f);
@@ -181,13 +183,11 @@ int main(){
     VkRenderingAttachmentInfo attach=swapView->BasicAttachment(VK_IMAGE_LAYOUT_GENERAL);
     attach.clearValue.color={0.85,0.85,0.85,1.0};
     ballPipeline->AddAttachment(swapView,attach);
-    //ballPipeline->AddDepthAttachment(stencil.mView);
     ballPipeline->AddStencilAttachment(stencil.mView);
     ballPipeline->SetViewport(swapImage->Extent());
 
-    //dropShadowPipeline->AssignImage("OutputImage",swapImage,swapView);
-    //dropShadowPipeline->AssignImage("ShadowImage",stencil.mImage,stencil.mView);
-    //dropShadowPipeline->AssignPush(&shadowPush);
+    dropShadowPipeline->AssignImage("OutputImage",swapImage,swapView);
+    dropShadowPipeline->AssignImage("ShadowImage",stencil.mImage,stencil.mViewStencil);
 
     VkCommandBufferBeginInfo info={
       .sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -207,7 +207,6 @@ int main(){
       VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     );
 
-
     swapImage->TransitionLayout(
       CMDBuffer,
       VK_PIPELINE_STAGE_2_NONE,0,
@@ -215,18 +214,16 @@ int main(){
       VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
       VK_IMAGE_LAYOUT_GENERAL);
 
-
-
     ballPipeline->PopulateCommandBuffer(CMDBuffer,(uint32_t)BallVertices.size(),1,0,0);
 
-    /*swapImage->TransitionLayout(
+    swapImage->TransitionLayout(
       CMDBuffer,
       VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
       VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
       VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
       VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT|VK_ACCESS_2_SHADER_STORAGE_READ_BIT,
       VK_IMAGE_LAYOUT_GENERAL);
-      
+    
     stencil.mImage->TransitionLayout(
       CMDBuffer,
       VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT,
@@ -234,9 +231,9 @@ int main(){
       VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
       VK_ACCESS_2_SHADER_STORAGE_READ_BIT,
       VK_IMAGE_LAYOUT_GENERAL
-    );*/
+    );
 
-    /*dropShadowPipeline->PopulateCommandBuffer(
+    dropShadowPipeline->PopulateCommandBuffer(
       CMDBuffer,
       (uint32_t)std::ceil(swapExtent.width/16.0f),
       (uint32_t)std::ceil(swapExtent.height/16.0f),
@@ -249,16 +246,7 @@ int main(){
       VK_PIPELINE_STAGE_2_NONE,
       VK_ACCESS_2_NONE,
       VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-      */
-    swapImage->TransitionLayout(
-      CMDBuffer,
-      VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-      VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
-      VK_PIPELINE_STAGE_2_NONE,
-      VK_ACCESS_2_NONE,
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-    //vkCmdEndRenderPass(CMDBuffer);
     vkEndCommandBuffer(CMDBuffer);
     queue->Submit({CMDBuffer});
     queue->Wait();

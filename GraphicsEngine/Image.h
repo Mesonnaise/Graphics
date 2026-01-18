@@ -8,6 +8,7 @@ namespace Engine{
 
   class BaseImage:public Resource{
   protected:
+    VkSampler mSampler=nullptr;
     VkImageLayout mCurrentLayout=VK_IMAGE_LAYOUT_UNDEFINED;
     VkExtent3D mExtent={1,1,1};
     VkImageType mType=VK_IMAGE_TYPE_1D;
@@ -43,6 +44,10 @@ namespace Engine{
 
     constexpr VkImageUsageFlags Usage(){
       return mUsage;
+    }
+
+    constexpr VkSampler GetSampler(){
+      return mSampler;
     }
 
     VkMemoryRequirements MemoryRequirements() override;

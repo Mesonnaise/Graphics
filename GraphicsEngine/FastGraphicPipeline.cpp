@@ -28,7 +28,7 @@ namespace Engine{
     mStencilAttachmentView=view;
     mStencilAttachment=view->BasicAttachment(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     mStencilAttachment.loadOp=VK_ATTACHMENT_LOAD_OP_CLEAR;
-    mStencilAttachment.storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    mStencilAttachment.storeOp=VK_ATTACHMENT_STORE_OP_STORE;
     mStencilAttachment.clearValue.depthStencil={.depth=0.0f,.stencil=0};
   }
 

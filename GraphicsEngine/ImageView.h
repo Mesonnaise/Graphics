@@ -15,16 +15,30 @@ namespace Engine{
   protected:
     ImageView(DevicePtr &device,BaseImagePtr image);
     ImageView(DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,VkFormat format);
+    ImageView(DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,VkFormat format,VkImageAspectFlags aspect);
   public:
-    static std::shared_ptr<ImageView> Create(DevicePtr &device,BaseImagePtr image){
+    static std::shared_ptr<ImageView> Create(
+      DevicePtr &device,BaseImagePtr image){
+
       auto p=new ImageView(device,image);
       return std::shared_ptr<ImageView>(p);
     }
 
-    static std::shared_ptr<ImageView> Create(DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,VkFormat format){
+    static std::shared_ptr<ImageView> Create(
+      DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,VkFormat format){
+
       auto p=new ImageView(device,image,viewType,format);
       return std::shared_ptr<ImageView>(p);
     }
+
+    static std::shared_ptr<ImageView> Create(
+      DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,
+      VkFormat format,VkImageAspectFlags aspect){
+
+      auto p=new ImageView(device,image,viewType,format,aspect);
+      return std::shared_ptr<ImageView>(p);
+    }
+
     ~ImageView();
 
     constexpr VkImageView Handle(){

@@ -69,8 +69,12 @@ namespace Engine{
       std::vector<VkDescriptorImageInfo> descImages;
       std::vector<VkDescriptorBufferInfo> descBuffers;
       std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+      auto variableNames=mShaderObject->GetVariableNames();
+      descImages.reserve(variableNames.size());
+      descBuffers.reserve(variableNames.size());
 
-      for(auto name:mShaderObject->GetVariableNames()){
+
+      for(auto name:variableNames){
         auto set=mDescriptorSets[mShaderObject->VariableSetIndex(name)];
         auto binding=mShaderObject->VariableBinding(name);
 
@@ -106,8 +110,12 @@ namespace Engine{
           VkDescriptorImageInfo info={
             .sampler=nullptr,
             .imageView=mImageViews.at(name)->Handle(),
-            .imageLayout=mImages.at(name)->GetLayout()
+            .imageLayout=mImages.at(name)->GetLayout(),
           };
+
+          if(binding.descriptorType==VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+            info.sampler=mImages.at(name)->GetSampler();
+
           descImages.push_back(info);
           setInfo.pImageInfo=&descImages.back();
         }

@@ -13,6 +13,7 @@ namespace Engine{
     poolSizes.push_back({VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,16});
     poolSizes.push_back({VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,16});
     poolSizes.push_back({VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,16});
+    poolSizes.push_back({VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,16});
 
     VkDescriptorPoolCreateInfo info={
       .sType=VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
