@@ -19,14 +19,16 @@ namespace Engine{
   void FastGraphicPipeline::AddDepthAttachment(ImageViewPtr view){
     mDepthAttachmentView=view;
     mDepthAttachment=view->BasicAttachment(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    mDepthAttachment.loadOp=VK_ATTACHMENT_LOAD_OP_CLEAR;
+    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_STORE;
     mDepthAttachment.clearValue.depthStencil.depth=1.0f;
   }
 
   void FastGraphicPipeline::AddStencilAttachment(ImageViewPtr view){
     mDepthAttachmentView=view;
     mDepthAttachment=view->BasicAttachment(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    mDepthAttachment.loadOp=VK_ATTACHMENT_LOAD_OP_CLEAR;
+    mDepthAttachment.storeOp=VK_ATTACHMENT_STORE_OP_STORE;
     mDepthAttachment.clearValue.depthStencil.depth=1.0f;
   }
 
@@ -40,7 +42,7 @@ namespace Engine{
     uint32_t vertexCount,uint32_t instanceCount,
     uint32_t firstVertex,uint32_t firstInstance){
 
-    BuildDescriptorBuffer();
+    UpdateDescriptors();
 
     VkViewport viewPort={
       .x=0.0f,
@@ -90,7 +92,8 @@ namespace Engine{
       .viewMask=0,
       .colorAttachmentCount=(uint32_t)mAttachments.size(),
       .pColorAttachments=mAttachments.data(),
-      .pDepthAttachment=nullptr//&attachmentDepthInfo
+      .pDepthAttachment=nullptr,
+      .pStencilAttachment=nullptr
     };
 
     if(mDepthAttachmentView!=nullptr)
@@ -99,30 +102,62 @@ namespace Engine{
     if(mStencilAttachmentView!=nullptr)
       renderingInfo.pStencilAttachment=&mStencilAttachment;
 
-
-    std::vector<VkDeviceSize> layoutOffsets;
-    std::vector<uint32_t> layoutIndecies;
-    VkDeviceSize currentOffset=0;
-    for(auto layout:mShaderObject->GetLayouts()){
-      layoutOffsets.push_back(currentOffset);
-      currentOffset+=layout->GetLayoutSize();
-      layoutIndecies.push_back(0);
-    }
-
     vkCmdBeginRendering(CMDBuffer,&renderingInfo);
-    BasicGraphicsPipeline(CMDBuffer);
+    
+    VkSampleMask SampleMask=0x1;
+    VkBool32 vkFalse=VK_FALSE;
+    VkColorComponentFlags MaskColorComponent=
+      VK_COLOR_COMPONENT_R_BIT|VK_COLOR_COMPONENT_G_BIT|
+      VK_COLOR_COMPONENT_B_BIT|VK_COLOR_COMPONENT_A_BIT;
+
+    vkCmdSetDepthTestEnable(CMDBuffer,VK_FALSE);
+    vkCmdSetDepthBiasEnable(CMDBuffer,VK_FALSE);
+    pfnCmdSetDepthClampEnableEXT(CMDBuffer,VK_FALSE);
+    //vkCmdSetDepthWriteEnable(CMDBuffer,VK_TRUE);
+    //vkCmdSetDepthCompareOp(CMDBuffer,VK_COMPARE_OP_LESS);
+    
+    vkCmdSetDepthBoundsTestEnable(CMDBuffer,VK_FALSE);
+    
+
+    vkCmdSetStencilTestEnable(CMDBuffer,VK_FALSE);
+    //vkCmdSetStencilCompareMask(CMDBuffer,VK_STENCIL_FACE_FRONT_BIT,1);
+    //vkCmdSetStencilWriteMask(CMDBuffer,VK_STENCIL_FACE_FRONT_BIT,1);
+    //vkCmdSetStencilReference(CMDBuffer,VK_STENCIL_FACE_FRONT_BIT,1);
+    //vkCmdSetStencilOp(
+    //  CMDBuffer,VK_STENCIL_FACE_FRONT_BIT,
+    //  VK_STENCIL_OP_REPLACE,VK_STENCIL_OP_REPLACE,
+    //  VK_STENCIL_OP_REPLACE,VK_COMPARE_OP_LESS);
+
+    vkCmdSetCullMode(CMDBuffer,VK_CULL_MODE_BACK_BIT);
+    vkCmdSetRasterizerDiscardEnable(CMDBuffer,VK_FALSE);
+    vkCmdSetFrontFace(CMDBuffer,VK_FRONT_FACE_COUNTER_CLOCKWISE);
+
+    
+    pfnCmdSetPolygonModeEXT(CMDBuffer,VK_POLYGON_MODE_FILL);
+    pfnCmdSetRasterizationSamplesEXT(CMDBuffer,VK_SAMPLE_COUNT_1_BIT);
+    pfnCmdSetSampleMaskEXT(CMDBuffer,VK_SAMPLE_COUNT_1_BIT,&SampleMask);
+    
+    pfnCmdSetAlphaToCoverageEnableEXT(CMDBuffer,VK_FALSE);
+    pfnCmdSetLogicOpEnableEXT(CMDBuffer,VK_FALSE);
+    pfnCmdSetColorBlendEnableEXT(CMDBuffer,0,1,&vkFalse);
+    pfnCmdSetColorWriteMaskEXT(CMDBuffer,0,1,&MaskColorComponent);
+    vkCmdSetPrimitiveTopology(CMDBuffer,VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pfnCmdSetProvokingVertexModeEXT(CMDBuffer,VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT);
+    vkCmdSetPrimitiveRestartEnable(CMDBuffer,VK_FALSE);
 
 
     vkCmdSetViewportWithCount(CMDBuffer,1,&viewPort);
     vkCmdSetScissorWithCount(CMDBuffer,1,&scissor);
     pfnCmdSetVertexInputEXT(CMDBuffer,1,&vertexInputBinding,1,&vertexInputAttribute);
 
+    auto vb=mVertexBuffer->Handle();
+    VkDeviceSize vbOffset=0;
+    VkDeviceSize vbSize=mVertexBuffer->AllocatedSize();
+    VkDeviceSize vbStride=sizeof(glm::vec3);
+    vkCmdBindVertexBuffers2(CMDBuffer,0,1,&vb, &vbOffset, &vbSize,&vbStride);
+
     mLayout->BindShaders(CMDBuffer);
-    VkDeviceSize offsets[]={0};
-    auto vertexBuffer=mVertexBuffer->Handle();
-    vkCmdBindVertexBuffers(CMDBuffer,0,1,&vertexBuffer,offsets);
-    mDescriptorBuffer->CommandBufferBind(CMDBuffer);
-    mLayout->SetDescriptorBufferOffsets(CMDBuffer,layoutIndecies,layoutOffsets);
+    WriteDescriptors(CMDBuffer);
 
     vkCmdDraw(CMDBuffer,vertexCount,instanceCount,firstVertex,firstInstance);
     vkCmdEndRendering(CMDBuffer);

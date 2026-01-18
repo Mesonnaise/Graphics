@@ -4,11 +4,12 @@
 
 #include"Device.h"
 #include"Image.h"
-
+#include"Sampler.h"
 namespace Engine{
   class ImageView{
     DevicePtr mDevice=nullptr;
     BaseImagePtr mImage=nullptr;
+    SamplerPtr mSampler=nullptr;
     VkImageView mHandle=nullptr;
 
   protected:

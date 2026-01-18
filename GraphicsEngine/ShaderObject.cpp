@@ -61,7 +61,7 @@ namespace Engine{
   }
 
 
-  ShaderObject::ShaderObject(DevicePtr device,std::vector<std::filesystem::path> shaderPaths):mDevice(device){
+  ShaderObject::ShaderObject(DevicePtr device,std::vector<std::filesystem::path> shaderPaths,bool useBuffer):mDevice(device){
     VkPhysicalDeviceMemoryProperties2 memoryProperties2={
       .sType=VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2,
       .pNext=nullptr
@@ -129,7 +129,7 @@ namespace Engine{
       mPipelineBindPoint=VK_PIPELINE_BIND_POINT_COMPUTE;
     }
 
-    AllocateSetLayouts();
+    AllocateSetLayouts(useBuffer);
 
     if(mPipelineBindPoint==VK_PIPELINE_BIND_POINT_GRAPHICS){
       VkPipelineStageFlags allStages=0;
@@ -203,7 +203,7 @@ namespace Engine{
       pfDestroyShader(mDevice->Handle(),shader,nullptr);
   }
 
-  void ShaderObject::AllocateSetLayouts(){
+  void ShaderObject::AllocateSetLayouts(bool useBuffer){
     std::map<VkShaderStageFlags,std::map<uint32_t,std::vector<BindingIndices *>>> mapping;
 
     for(auto &[name,bindingIndice]:mBindingIndices){
@@ -216,7 +216,7 @@ namespace Engine{
           bindings->LayoutOffset=mDescriptorSetLayouts.size();
           vkBindings.push_back(bindings->VulkanBind);
         }
-        auto setLayout=DescriptorSetLayout::Create(mDevice,vkBindings);
+        auto setLayout=DescriptorSetLayout::Create(mDevice,vkBindings,useBuffer);
 
         mDescriptorSetLayouts.push_back(setLayout);
         mStageLayouts.insert({stages,setLayout});

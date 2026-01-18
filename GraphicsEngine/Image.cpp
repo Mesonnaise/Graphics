@@ -15,6 +15,14 @@ namespace Engine{
     VkPipelineStageFlags2 srcStage,VkAccessFlags2 srcAccess,
     VkPipelineStageFlags2 dstStage,VkAccessFlags2 dstAccess,VkImageLayout newLayout){
 
+    VkImageAspectFlags aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+    if(mFormat==VK_FORMAT_D32_SFLOAT)
+      aspectMask=VK_IMAGE_ASPECT_STENCIL_BIT;
+    else if(mFormat==VK_FORMAT_S8_UINT)
+      aspectMask=VK_IMAGE_ASPECT_DEPTH_BIT;
+    else if(mFormat==VK_FORMAT_D16_UNORM_S8_UINT||mFormat==VK_FORMAT_D24_UNORM_S8_UINT||mFormat==VK_FORMAT_D32_SFLOAT_S8_UINT)
+      aspectMask=VK_IMAGE_ASPECT_DEPTH_BIT|VK_IMAGE_ASPECT_STENCIL_BIT;
+
     VkImageMemoryBarrier2 barrier={
       .sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
       .pNext=nullptr,
@@ -28,7 +36,7 @@ namespace Engine{
       .dstQueueFamilyIndex=mDevice->GetPrimiaryQueueFamily(),
       .image=mImage,
       .subresourceRange={
-        .aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
+        .aspectMask=aspectMask,
         .baseMipLevel=0,
         .levelCount=1,
         .baseArrayLayer=0,
@@ -64,6 +72,17 @@ namespace Engine{
     } else if(extent.depth>1)
       mType=VK_IMAGE_TYPE_3D;
 
+    VkImageFormatProperties properties{};
+    auto result=vkGetPhysicalDeviceImageFormatProperties(
+      mDevice->Physical().Handle(),
+      VK_FORMAT_D32_SFLOAT_S8_UINT,VK_IMAGE_TYPE_2D,VK_IMAGE_TILING_OPTIMAL,
+      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT|VK_IMAGE_USAGE_SAMPLED_BIT,0,
+      &properties);
+    if(result!=VK_SUCCESS)
+      throw std::runtime_error("Unable to get image format properties");
+
+
+
     VkImageCreateInfo info={
       .sType=VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
       .pNext=nullptr,
@@ -82,7 +101,7 @@ namespace Engine{
       .initialLayout=VK_IMAGE_LAYOUT_UNDEFINED
     };
 
-    auto result=vkCreateImage(mDevice->Handle(),&info,nullptr,&mImage);
+    result=vkCreateImage(mDevice->Handle(),&info,nullptr,&mImage);
     if(result!=VK_SUCCESS)
       throw std::runtime_error("Unable to create image");
   }

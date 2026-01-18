@@ -26,6 +26,9 @@
     <CustomBuild Include="AmigaBallVertex.vert.glsl">
       <Filter>Source Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="AmigaBallCompute.comp.glsl">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BallVertices.h">

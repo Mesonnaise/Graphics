@@ -2,6 +2,8 @@
 #include<array>
 #include<memory>
 #include<filesystem>
+#include<functional>
+
 #include"Device.h"
 #include"Allocator.h"
 #include"ShaderObject.h"
@@ -13,6 +15,8 @@
 
 namespace Engine{
   class FastGraphicPipeline:public FastPipeline{
+  private:
+
     BufferPtr mVertexBuffer=nullptr;
 
     std::vector<VkRenderingAttachmentInfo> mAttachments;
@@ -22,6 +26,7 @@ namespace Engine{
     VkRenderingAttachmentInfo mDepthAttachment={};
     ImageViewPtr mStencilAttachmentView=nullptr;
     VkRenderingAttachmentInfo mStencilAttachment={};
+
 
 
     std::array<float,4> mClearColor={1.0f,1.0f,1.0f,1.0f};

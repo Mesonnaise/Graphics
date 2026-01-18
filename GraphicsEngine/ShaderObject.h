@@ -35,13 +35,13 @@ namespace Engine{
 
     std::optional<std::tuple<std::string,uint32_t>> mPushConstant;
   protected:
-    ShaderObject(DevicePtr device,std::vector<std::filesystem::path> shaderPaths);
+    ShaderObject(DevicePtr device,std::vector<std::filesystem::path> shaderPaths,bool useBuffer);
 
-    void AllocateSetLayouts();
+    void AllocateSetLayouts(bool useBuffer);
     std::vector<VkDescriptorSetLayout> FindLayoutsForStage(VkShaderStageFlags stage);
   public:
-    static std::shared_ptr<ShaderObject> Create(DevicePtr device,std::vector<std::filesystem::path> paths){
-      auto p=new ShaderObject(device,paths);
+    static std::shared_ptr<ShaderObject> Create(DevicePtr device,std::vector<std::filesystem::path> paths,bool useBuffer){
+      auto p=new ShaderObject(device,paths,useBuffer);
       return std::shared_ptr<ShaderObject>(p);
     }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,6 +23,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="CommandBufferBool.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="DescriptorPool.h" />
     <ClInclude Include="DescriptorSetLayout.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Exception.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="PipelineLayout.h" />
     <ClInclude Include="Reflection.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Sampler.h" />
     <ClInclude Include="ShaderObject.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Swapchain.h" />
@@ -47,6 +49,7 @@
     <ClCompile Include="Allocator.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="CommandBufferBool.cpp" />
+    <ClCompile Include="DescriptorPool.cpp" />
     <ClCompile Include="DescriptorSetLayout.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Exception.cpp" />
@@ -61,6 +64,7 @@
     <ClCompile Include="PipelineLayout.cpp" />
     <ClCompile Include="Reflection.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="ShaderObject.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Swapchain.cpp" />

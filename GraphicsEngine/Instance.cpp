@@ -52,7 +52,7 @@ namespace Engine{
     return ret;
   }
   void Instance::Physical::DeviceImageFormatProperties(VkFormat format,VkImageType type){
-   // vkGetPhysicalDeviceImageFormatProperties(mHandle,foramt,type,)
+    //vkGetPhysicalDeviceImageFormatProperties(mHandle,format,type,)
   }
 
   VkPhysicalDeviceMemoryProperties Instance::Physical::MemoryProperties(){

@@ -17,10 +17,10 @@ namespace Engine{
     Bindings mBinding;
 
   protected:
-    DescriptorSetLayout(DevicePtr device,Bindings bindings);
+    DescriptorSetLayout(DevicePtr device,Bindings bindings,bool useBuffer);
   public:
-    static inline auto Create(DevicePtr device,Bindings bindings){
-      auto p=new DescriptorSetLayout(device,bindings);
+    static inline auto Create(DevicePtr device,Bindings bindings,bool useBuffer){
+      auto p=new DescriptorSetLayout(device,bindings,useBuffer);
       return std::shared_ptr<DescriptorSetLayout>(p);
     }
 

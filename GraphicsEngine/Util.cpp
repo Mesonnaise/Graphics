@@ -33,7 +33,7 @@ namespace Engine{
     vkCmdSetRasterizerDiscardEnable(CMDBuffer,VK_FALSE);
     vkCmdSetFrontFace(CMDBuffer,VK_FRONT_FACE_COUNTER_CLOCKWISE);
     vkCmdSetCullMode(CMDBuffer,VK_CULL_MODE_BACK_BIT);
-    vkCmdSetStencilTestEnable(CMDBuffer,VK_FALSE);
+    vkCmdSetStencilTestEnable(CMDBuffer,VK_TRUE);
     vkCmdSetDepthBiasEnable(CMDBuffer,VK_FALSE);
     vkCmdSetDepthBoundsTestEnable(CMDBuffer,VK_FALSE);
     pfnCmdSetPolygonModeEXT(CMDBuffer,VK_POLYGON_MODE_FILL);

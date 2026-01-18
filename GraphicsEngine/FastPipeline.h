@@ -13,6 +13,7 @@
 #include"Buffer.h"
 #include"Image.h"
 #include"ImageView.h"
+#include"DescriptorPool.h"
 
 namespace Engine{
   class FastPipeline{
@@ -22,7 +23,8 @@ namespace Engine{
     ShaderObjectPtr mShaderObject=nullptr;
     PipelineLayoutPtr mLayout=nullptr;
 
-    bool mRebuildDescriptorBuffer=true;
+    bool mUseBuffer=true;
+    bool mRebuildDescriptors=false;
     DescriptorBufferPtr mDescriptorBuffer=nullptr;
 
     std::map<std::string,BufferPtr> mBuffers;
@@ -32,9 +34,12 @@ namespace Engine{
     uint32_t mPushConstantSize=0;
     std::vector<uint8_t> mPushConstantData;
 
+    DescriptorPoolPtr mDescriptorPool=nullptr;
+    std::vector<VkDescriptorSet> mDescriptorSets;
   protected:
     FastPipeline(DevicePtr &device,AllocatorPtr &allocator,std::vector<std::filesystem::path> shaderPaths);
-    void BuildDescriptorBuffer();
+    void UpdateDescriptors();
+    void WriteDescriptors(VkCommandBuffer CMDBuffer);
   public:
     template<class T>
     inline void AssignPush(T *pushData){

@@ -5,20 +5,11 @@ namespace Engine{
     FastPipeline(device,allocator,{ShaderPath}){}
 
   void FastComputePipeline::PopulateCommandBuffer(VkCommandBuffer CMDBuffer,uint32_t x,uint32_t y,uint32_t z){
-    BuildDescriptorBuffer();
+    UpdateDescriptors();
 
-    std::vector<VkDeviceSize> layoutOffsets;
-    std::vector<uint32_t> layoutIndecies;
-    VkDeviceSize currentOffset=0;
-    for(auto layout:mShaderObject->GetLayouts()){
-      layoutOffsets.push_back(currentOffset);
-      currentOffset+=layout->GetLayoutSize();
-      layoutIndecies.push_back(0);
-    }
 
     mLayout->BindShaders(CMDBuffer);
-    mDescriptorBuffer->CommandBufferBind(CMDBuffer);
-    mLayout->SetDescriptorBufferOffsets(CMDBuffer,layoutIndecies,layoutOffsets);
+    WriteDescriptors(CMDBuffer);
 
     if(mPushConstantSize){
       if(mPushConstantSize!=mPushConstantData.size())

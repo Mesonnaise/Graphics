@@ -24,6 +24,14 @@ namespace Engine{
 
   ImageView::ImageView(DevicePtr &device,BaseImagePtr image,VkImageViewType viewType,VkFormat format):
     mDevice(device),mImage(image){
+    VkImageAspectFlags aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+
+    if(format==VK_FORMAT_D32_SFLOAT)
+      aspectMask=VK_IMAGE_ASPECT_STENCIL_BIT;
+    else if(format==VK_FORMAT_S8_UINT)
+      aspectMask=VK_IMAGE_ASPECT_DEPTH_BIT;
+    else if(format==VK_FORMAT_D16_UNORM_S8_UINT||format==VK_FORMAT_D24_UNORM_S8_UINT||format==VK_FORMAT_D32_SFLOAT_S8_UINT)
+      aspectMask=VK_IMAGE_ASPECT_DEPTH_BIT|VK_IMAGE_ASPECT_STENCIL_BIT;
 
     VkImageViewCreateInfo info={
       .sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -39,7 +47,7 @@ namespace Engine{
         .a=VK_COMPONENT_SWIZZLE_IDENTITY
       },
       .subresourceRange={
-        .aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
+        .aspectMask=aspectMask,
         .baseMipLevel=0,
         .levelCount=1,
         .baseArrayLayer=0,
@@ -59,9 +67,19 @@ namespace Engine{
     auto properties=mDevice->GetDescriptorProperties();
     size_t descriptorSize=0;
 
+    auto CreateSampler=[&](){
+      if(mSampler==nullptr)
+        mSampler=Sampler::Create(mDevice);
+    };
+
     switch(descriptorType){
       case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
         descriptorSize=properties.sampledImageDescriptorSize;
+        CreateSampler();
+        break;
+      case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        descriptorSize=properties.combinedImageSamplerDescriptorSize;
+        CreateSampler();
         break;
       case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
         descriptorSize=properties.storageImageDescriptorSize;
@@ -78,6 +96,9 @@ namespace Engine{
       .imageView=mHandle,
       .imageLayout=layout
     };
+
+    if(mSampler)
+      imageInfo.sampler=mSampler->Handle();
 
     VkDescriptorGetInfoEXT descriptorInfo={
       .sType=VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT,
