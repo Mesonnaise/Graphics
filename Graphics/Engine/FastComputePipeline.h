@@ -13,7 +13,7 @@
 class FastComputePipeline{
   DevicePtr mDevice=nullptr;
   AllocatorPtr mAllocator=nullptr;
-  ShaderObjectPtr mShaderOjbect=nullptr;
+  ShaderObjectPtr mShaderObject=nullptr;
   PipelineLayoutPtr mLayout=nullptr;
 
   bool mRebuildDescriptorBuffer=true;
@@ -34,7 +34,7 @@ public:
     return std::shared_ptr<FastComputePipeline>(p);
   }
   inline std::vector<std::string> GetVariableNames(){
-    return mShaderOjbect->GetVariableNames();
+    return mShaderObject->GetVariableNames();
   }
 
   inline BufferPtr GetBuffer(std::string name){

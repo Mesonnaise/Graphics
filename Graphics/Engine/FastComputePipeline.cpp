@@ -4,10 +4,10 @@
 FastComputePipeline::FastComputePipeline(DevicePtr &device,AllocatorPtr &allocator,std::filesystem::path &ShaderPath):
   mDevice(device),mAllocator(allocator){
 
-  mShaderOjbect=ShaderObject::Create(mDevice,{ShaderPath});
-  mLayout=PipelineLayout::Create(mDevice,{mShaderOjbect});
+  mShaderObject=ShaderObject::Create(mDevice,{ShaderPath});
+  mLayout=PipelineLayout::Create(mDevice,{mShaderObject});
   mDescriptorBuffer=mAllocator->CreateDescriptorBuffer(
-    mShaderOjbect->GetDescriptorBufferTotalSize(),true);
+    mShaderObject->GetDescriptorBufferTotalSize(),true);
 }
 
 void FastComputePipeline::BuildDescriptorBuffer(){
@@ -17,8 +17,8 @@ void FastComputePipeline::BuildDescriptorBuffer(){
   size_t offset=0;
   uint8_t *mapping=reinterpret_cast<uint8_t *>(mDescriptorBuffer->Mapped());
 
-  for(auto name:mShaderOjbect->GetVariableNames()){
-    VkDescriptorSetLayoutBinding binding=mShaderOjbect->VariableBinding(name);
+  for(auto name:mShaderObject->GetVariableNames()){
+    VkDescriptorSetLayoutBinding binding=mShaderObject->VariableBinding(name);
     VkDescriptorType descriptorType=binding.descriptorType;
 
     if(descriptorType==VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER||
@@ -45,14 +45,14 @@ void FastComputePipeline::BuildDescriptorBuffer(){
 }
 
 void FastComputePipeline::QuickCreateBuffers(){
-  for(auto name:mShaderOjbect->GetVariableNames()){
-    VkDescriptorSetLayoutBinding binding=mShaderOjbect->VariableBinding(name);
+  for(auto name:mShaderObject->GetVariableNames()){
+    VkDescriptorSetLayoutBinding binding=mShaderObject->VariableBinding(name);
     VkDescriptorType descriptorType=binding.descriptorType;
 
     if(descriptorType==VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER||
       descriptorType==VK_DESCRIPTOR_TYPE_STORAGE_BUFFER){
 
-      auto size=mShaderOjbect->VariableStructureSize(name);
+      auto size=mShaderObject->VariableStructureSize(name);
       VkBufferUsageFlags usage=VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
       switch(descriptorType){
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
@@ -77,7 +77,7 @@ void FastComputePipeline::PopulateCommandBuffer(VkCommandBuffer CMDBuffer,uint32
   std::vector<VkDeviceSize> layoutOffsets;
   std::vector<uint32_t> layoutIndecies;
   VkDeviceSize currentOffset=0;
-  for(auto layout:mShaderOjbect->GetLayouts()){
+  for(auto layout:mShaderObject->GetLayouts()){
     layoutOffsets.push_back(currentOffset);
     currentOffset+=layout->GetLayoutSize();
     layoutIndecies.push_back(0);
