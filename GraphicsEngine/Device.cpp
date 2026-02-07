@@ -3,7 +3,7 @@
 #include<vulkan/vulkan.h>
 #include "Device.h"
 #include "Instance.h"
-#include "Swapchain.h"
+#include "Swapchain2.h"
 #include "Internal/VulkanFunctions.h"
 
 namespace Engine{
@@ -36,7 +36,7 @@ namespace Engine{
     vkQueueWaitIdle(mHandle);
   }
 
-  Device::Device(InstancePtr ins,Instance::Physical phy,std::optional<SurfacePtr> surface):mInstance(ins),mPhysical(phy){
+  Device::Device(InstancePtr ins,Instance::Physical phy,std::optional<WindowPtr> window):mInstance(ins),mPhysical(phy){
     std::vector<VkDeviceQueueCreateInfo> queueInfo;
     auto queueProps=phy.QueueFamilyProperties();
 
@@ -126,11 +126,11 @@ namespace Engine{
       };
 
     int32_t QueueIndex=0;
-    if(surface.has_value()){
+    if(window.has_value()){
       while(QueueIndex<queueProps.size()){
         QueueIndex=FindQueue(VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_COMPUTE_BIT|VK_QUEUE_TRANSFER_BIT,0);
 
-        if(phy.IsSurfaceSupported(QueueIndex,surface.value())){
+        if(phy.IsSurfaceSupported(QueueIndex,window.value())){
           AddQueue(QueueIndex);
           break;
         }
@@ -188,10 +188,6 @@ namespace Engine{
     vkGetPhysicalDeviceProperties2(mPhysical.Handle(),&physicalProperties);
 
     return properties;
-  }
-
-  SwapchainPtr Device::CreateSwapchain(SurfacePtr surface){
-    return Swapchain::Create(shared_from_this(),surface);
   }
 
   void Device::Debug(VkObjectType type,uint64_t handle,std::string name){

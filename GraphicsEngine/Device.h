@@ -5,7 +5,7 @@
 #include<vulkan/vulkan.h>
 
 #include"Instance.h"
-#include"Surface.h"
+#include"Window.h"
 
 namespace Engine{
   class Swapchain;
@@ -55,14 +55,14 @@ namespace Engine{
 
   protected:
 
-    Device(InstancePtr ins,Instance::Physical phy,std::optional<SurfacePtr> surface);
+    Device(InstancePtr ins,Instance::Physical phy,std::optional<WindowPtr> window);
 
-    static auto Create(InstancePtr ins,Instance::Physical phy,std::optional<SurfacePtr> surface){
-      auto p=new Device(ins,phy,surface);
+  public:
+    static auto Create(InstancePtr ins,Instance::Physical phy,std::optional<WindowPtr> window){
+      auto p=new Device(ins,phy,window);
       return std::shared_ptr<Device>(p);
     }
 
-  public:
     ~Device();
 
     inline auto GetQueue(uint32_t Index){
@@ -83,9 +83,6 @@ namespace Engine{
     }
 
     VkPhysicalDeviceDescriptorBufferPropertiesEXT GetDescriptorProperties()const;
-
-
-    std::shared_ptr<Swapchain> CreateSwapchain(SurfacePtr surface);
 
     void Debug(VkObjectType type,uint64_t handle,std::string name);
   };

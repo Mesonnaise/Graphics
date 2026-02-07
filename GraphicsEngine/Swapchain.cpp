@@ -3,7 +3,7 @@
 #include "Swapchain.h"
 
 namespace Engine{
-  Swapchain::Swapchain(DevicePtr device,SurfacePtr surface):mDevice(device),mSurface(surface){
+  Swapchain::Swapchain(DevicePtr device,WindowPtr window):mDevice(device),mWindow(window){
     mHandle=CreateSwapchain(VK_NULL_HANDLE);
     AllocateImages();
 
@@ -25,20 +25,20 @@ namespace Engine{
 
   VkSwapchainKHR Swapchain::CreateSwapchain(VkSwapchainKHR oldswap){
     VkSwapchainKHR handle;
-    auto cap=mDevice->Physical().SurfaceCapabilities(mSurface);
+    auto cap=mDevice->Physical().SurfaceCapabilities(mWindow);
     uint32_t neededFlags=VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_STORAGE_BIT|VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     VkPresentModeKHR presentMode=VK_PRESENT_MODE_IMMEDIATE_KHR;
 
     if((cap.supportedUsageFlags&neededFlags)!=neededFlags)
       throw std::runtime_error("Needed flags are not supported by surface");
 
-    for(auto presentMode:mDevice->Physical().SurfacePresentModes(mSurface)){
+    for(auto presentMode:mDevice->Physical().SurfacePresentModes(mWindow)){
       if(presentMode==VK_PRESENT_MODE_MAILBOX_KHR)
         presentMode=VK_PRESENT_MODE_MAILBOX_KHR;
     }
 
 
-    for(auto f:mDevice->Physical().SurfaceFormat(mSurface)){
+    for(auto f:mDevice->Physical().SurfaceFormat(mWindow)){
       if(f.format==VK_FORMAT_A2B10G10R10_UNORM_PACK32&&f.colorSpace==VK_COLOR_SPACE_SRGB_NONLINEAR_KHR){
         mFormat=f.format;
         mColorSpace=f.colorSpace;
@@ -55,7 +55,7 @@ namespace Engine{
       .sType=VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
       .pNext=nullptr,
       .flags=0,
-      .surface=mSurface->Handle(),
+      .surface=mWindow->Surface(),
       .minImageCount=cap.minImageCount,
       .imageFormat=mFormat,
       .imageColorSpace=mColorSpace,

@@ -3,14 +3,14 @@
 #include<array>
 #include<vulkan/vulkan.h>
 #include"Device.h"
-#include"Surface.h"
+#include"Window.h"
 #include"Image.h"
 #include"ImageView.h"
 
 namespace Engine{
   class Swapchain:public std::enable_shared_from_this<Swapchain>{
     DevicePtr mDevice=nullptr;
-    SurfacePtr mSurface=nullptr;
+    WindowPtr mWindow=nullptr;
     VkSwapchainKHR mHandle=nullptr;
     
     std::array<VkFence,2> mImageAcquireFence;
@@ -28,14 +28,14 @@ namespace Engine{
     std::vector<VkImageLayout> mOldLayouts;
 
   protected:
-    Swapchain(DevicePtr device,SurfacePtr surface);
+    Swapchain(DevicePtr device,WindowPtr window);
 
     VkSwapchainKHR CreateSwapchain(VkSwapchainKHR oldswap);
     void AllocateImages();
     void DestroyImageViews();
   public:
-    static auto Create(DevicePtr device,SurfacePtr surface){
-      auto p=new Swapchain(device,surface);
+    static auto Create(DevicePtr device,WindowPtr window){
+      auto p=new Swapchain(device,window);
       return std::shared_ptr<Swapchain>(p);
     }
     ~Swapchain();

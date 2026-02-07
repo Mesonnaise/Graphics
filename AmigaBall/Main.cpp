@@ -7,15 +7,6 @@
 #include<cmath>
 #include<numbers>
 
-#define NOMINMAX
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-
-#include<GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include<GLFW/glfw3native.h>
-
-
 #include<Instance.h>
 #include<Swapchain2.h>
 #include<FastGraphicPipeline.h>
@@ -87,20 +78,17 @@ void SizeWindowCB(GLFWwindow *window,int width,int height){
 
 
 int main(){
-  glfwInit();
+  auto  inst=Engine::Instance::Create({},true,true);
 
-  uint32_t extBufferCount=0;
-  const char **extBuffer=glfwGetRequiredInstanceExtensions(&extBufferCount);
-  auto  inst=Engine::Instance::Create(std::vector<const char *>(extBuffer,extBuffer+extBufferCount));
-
-  GLFWwindow *window=glfwCreateWindow(ViewWidth,ViewHeight,"Ball",NULL,NULL);
+  auto window=inst->CreateWindow(ViewWidth,ViewHeight,"Ball");
+  //GLFWwindow *window=glfwCreateWindow(ViewWidth,ViewHeight,"Ball",NULL,NULL);
 
   if(!window){
     glfwTerminate();
     return -1;
   }
 
-  glfwSetWindowSizeCallback(window,SizeWindowCB);
+  //glfwSetWindowSizeCallback(window,SizeWindowCB);
 
   std::filesystem::path workingDir=std::filesystem::current_path();
   auto vertexPath=workingDir;
@@ -112,9 +100,10 @@ int main(){
   computePath.append(ComputeShader);
 
   auto phy=inst->EnumeratePhysicals()[0];
-  auto surface=inst->CreateSurface(window);
-  auto device=inst->CreateDevice(phy,surface);
-  auto swapchain=Engine::Swapchain2::Create(device,surface);
+
+  
+  auto device=Engine::Device::Create(inst,phy,window);
+  auto swapchain=Engine::Swapchain2::Create(device,window);
   auto allocator=Engine::Allocator::Create(inst,device);
 
   auto queue=device->GetQueue(0);
@@ -123,7 +112,7 @@ int main(){
   stencil.mDevice=device;
   stencil.mAllocator=allocator;
   stencil.CreateStencil(ViewWidth,ViewHeight);
-  glfwSetWindowUserPointer(window,&stencil);
+  //glfwSetWindowUserPointer(window,&stencil);
 
   auto ballPipeline=Engine::FastGraphicPipeline::Create(device,allocator,{vertexPath,fragmentPath},true);
   ballPipeline->QuickCreateBuffers();
@@ -159,7 +148,7 @@ int main(){
   auto CMDBuffer=cmdPool->AllocateBuffers(1)[0];
   double step=0.0;
 
-  while(!glfwWindowShouldClose(window)){
+  while(!window->ShouldClose()){
     const auto startTime=std::chrono::high_resolution_clock::now();
     auto [swapImage,swapView]=swapchain->Next();
 
@@ -259,6 +248,6 @@ int main(){
     glfwPollEvents();
   }
 
-  glfwTerminate();
+  //glfwTerminate();
   return 0;
 }

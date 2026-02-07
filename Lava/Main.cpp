@@ -7,14 +7,6 @@
 #include<vector>
 #include<cmath>
 
-#define NOMINMAX
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-
-#include<GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include<GLFW/glfw3native.h>
-
 #include<glm/vec3.hpp>
 #include<glm/vec4.hpp>
 
@@ -95,25 +87,6 @@ void ErrorCallbackGLFW(int error,const char *description){
   std::cout<<std::format("{}\n",description);
 }
 
-void CloseWindowCB(GLFWwindow *window){
-  std::cout<<"Window Closing\n";
-}
-
-void KeyWindowCB(GLFWwindow *window,int key,int scancode,int action,int mods){
-  if(key==32&&action==1){
-    Blobs *blobHandler=reinterpret_cast<Blobs *>(glfwGetWindowUserPointer(window));
-    SetColor(blobHandler);
-
-  }else if(key!=32)
-    std::cout<<std::format(
-      "key {} scancode {} action {} mods {}\n",
-      key,scancode,action,mods);
-}
-
-void SizeWindowCB(GLFWwindow *window,int width,int height){
-  //Blobs *blobHandler=reinterpret_cast<Blobs *>(glfwGetWindowUserPointer(window));
-}
-
 const auto FrameTime=11ms;
 
 static glm::vec4 ConvertColor(std::array<uint32_t,3> color){
@@ -127,27 +100,16 @@ static glm::vec4 ConvertColor(std::array<uint32_t,3> color){
 
 int main(){
   using namespace std::chrono_literals;
-  glfwInit();
-  uint32_t extBufferCount=0;
-  const char **extBuffer=glfwGetRequiredInstanceExtensions(&extBufferCount);
-  auto  inst=Engine::Instance::Create(std::vector<const char *>(extBuffer,extBuffer+extBufferCount));
+  auto  inst=Engine::Instance::Create({},true,true);
 
   glfwSetErrorCallback(ErrorCallbackGLFW);
 
-  GLFWwindow *window=glfwCreateWindow(ViewWidth,ViewHeight,"Window Title",NULL,NULL);
-  if(!window){
-    glfwTerminate();
-    return -1;
-  }
-
-  glfwSetWindowCloseCallback(window,CloseWindowCB);
-  glfwSetKeyCallback(window,KeyWindowCB);
-  glfwSetWindowSizeCallback(window,SizeWindowCB);
+  auto window=inst->CreateWindow(ViewWidth,ViewHeight,"Lava");
 
   auto phy=inst->EnumeratePhysicals()[0];
-  auto surface=inst->CreateSurface(window);
-  auto device=inst->CreateDevice(phy,surface);
-  auto swapchain=Engine::Swapchain2::Create(device,surface);
+
+  auto device=Engine::Device::Create(inst,phy,window);
+  auto swapchain=Engine::Swapchain2::Create(device,window);
 
   auto allocator=Engine::Allocator::Create(inst,device);
 
@@ -161,9 +123,13 @@ int main(){
   blobs.SetBlobRadius({200,105,60},{20.0,30,15});
   blobs.SetBlobFloatSpeed({0.10,0.2,0.35},{0.075,0.05,0.05});
 
-  glfwSetWindowUserPointer(window,&blobs);
+  window->KeyCallback([&blobs](int key,int scancode,int action,int mods){
+    if(key==32&&action==1){
+      SetColor(&blobs);
+    }
+  });
 
-  while(!glfwWindowShouldClose(window)){
+  while(!window->ShouldClose()){
     const auto startTime=std::chrono::high_resolution_clock::now();
     
     auto [swapImage,swapView]=swapchain->Next();

@@ -1,15 +1,53 @@
 #include<stdexcept>
 #define VK_USE_PLATFORM_WIN32_KHR
 #include<vulkan/vulkan.h>
+
+#define NOMINMAX
+#define VK_USE_PLATFORM_WIN32_KHR
+#define GLFW_INCLUDE_VULKAN
+
+#include<GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include<GLFW/glfw3native.h>
+
 #include "Instance.h"
 #include "Device.h"
+#include"Window.h"
+#undef CreateWindow
+
+static std::atomic<uint64_t> GLFWInitCount=0;
+
+static void InitGLFW(){
+  uint64_t zeroValue=0;
+  uint64_t nextValue=1;
+  if(GLFWInitCount.compare_exchange_strong(zeroValue,nextValue)){
+    glfwInit();
+  } else
+    GLFWInitCount++;
+}
+
+static void TerminateGLFW(){
+  uint64_t zeroValue=0;
+  uint64_t nextValue=1;
+  if(GLFWInitCount.compare_exchange_strong(nextValue,zeroValue)){
+    glfwTerminate();
+  } else
+    GLFWInitCount--;
+}
+
+static std::vector<const char *> GetGLFWExtensions(){
+  uint32_t glfwExtensionCount=0;
+  const char **glfwExtensionsBuffer=glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+  std::vector<const char *> glfwExtensions(glfwExtensionsBuffer,glfwExtensionsBuffer+glfwExtensionCount);
+  return glfwExtensions;
+}
 
 namespace Engine{
   Instance::Physical::Physical(VkPhysicalDevice phy):mHandle(phy){}
 
-  bool Instance::Physical::IsSurfaceSupported(int32_t queueIndex,std::shared_ptr<Surface> &surface)const{
+  bool Instance::Physical::IsSurfaceSupported(int32_t queueIndex,std::shared_ptr<Window> &window)const{
     uint32_t v;
-    vkGetPhysicalDeviceSurfaceSupportKHR(mHandle,queueIndex,surface->Handle(),&v);
+    vkGetPhysicalDeviceSurfaceSupportKHR(mHandle,queueIndex,window->Surface(),&v);
 
     return (bool)v;
   }
@@ -24,18 +62,18 @@ namespace Engine{
   }
 
 
-  VkSurfaceCapabilitiesKHR Instance::Physical::SurfaceCapabilities(std::shared_ptr<Surface> &surface)const{
+  VkSurfaceCapabilitiesKHR Instance::Physical::SurfaceCapabilities(std::shared_ptr<Window> &surface)const{
     VkSurfaceCapabilitiesKHR ret;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mHandle,surface->Handle(),&ret);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mHandle,surface->Surface(),&ret);
     return ret;
   }
 
-  std::vector<VkSurfaceFormatKHR> Instance::Physical::SurfaceFormat(std::shared_ptr<Surface> &surface)const{
+  std::vector<VkSurfaceFormatKHR> Instance::Physical::SurfaceFormat(std::shared_ptr<Window> &surface)const{
     std::vector<VkSurfaceFormatKHR> ret;
     uint32_t count=0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(mHandle,surface->Handle(),&count,nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(mHandle,surface->Surface(),&count,nullptr);
     ret.resize(count);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(mHandle,surface->Handle(),&count,ret.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(mHandle,surface->Surface(),&count,ret.data());
 
 
 
@@ -43,12 +81,12 @@ namespace Engine{
   }
 
 
-  std::vector<VkPresentModeKHR> Instance::Physical::SurfacePresentModes(std::shared_ptr<Surface> &surface)const{
+  std::vector<VkPresentModeKHR> Instance::Physical::SurfacePresentModes(std::shared_ptr<Window> &window)const{
     std::vector<VkPresentModeKHR> ret;
     uint32_t count=0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(mHandle,surface->Handle(),&count,nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(mHandle,window->Surface(),&count,nullptr);
     ret.resize(count);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(mHandle,surface->Handle(),&count,ret.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(mHandle,window->Surface(),&count,ret.data());
     return ret;
   }
   void Instance::Physical::DeviceImageFormatProperties(VkFormat format,VkImageType type){
@@ -64,11 +102,16 @@ namespace Engine{
     return properties.memoryProperties;
   }
 
-  Instance::Instance(std::vector<const char *> Extensions){
+  Instance::Instance(std::vector<const char *> Extensions,bool Validate,bool UseGLFW):mUseGLFW(UseGLFW){
     std::vector<const char *> Layers;
-    //std::vector<const char *> Extensions;
+    if(mUseGLFW){
+      InitGLFW();
+      auto glfwExtensions=GetGLFWExtensions();
+      Extensions.insert(Extensions.end(),glfwExtensions.begin(),glfwExtensions.end());
+    }
 
-    Layers.push_back("VK_LAYER_KHRONOS_validation");
+    if(Validate)
+      Layers.push_back("VK_LAYER_KHRONOS_validation");
 
     VkApplicationInfo application={
       .sType=VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -99,6 +142,8 @@ namespace Engine{
   Instance::~Instance(){
     vkDestroyInstance(mHandle,nullptr);
 
+    if(mUseGLFW)
+      TerminateGLFW();
   }
 
   std::vector<Instance::Physical> Instance::EnumeratePhysicals(){
@@ -119,10 +164,8 @@ namespace Engine{
   std::shared_ptr<Device> Instance::CreateDevice(Physical phy){
     return Device::Create(shared_from_this(),phy,{});
   }
-  std::shared_ptr<Device> Instance::CreateDevice(Physical phy,std::shared_ptr<Surface> surface){
-    return Device::Create(shared_from_this(),phy,surface);
-  }
-  std::shared_ptr<Surface> Instance::CreateSurface(GLFWwindow *window){
-    return Surface::Create(shared_from_this(),window);
+
+  WindowPtr Instance::CreateWindow(int width,int height,std::string title){
+    return Window::Create(shared_from_this(),width,height,title);
   }
 }

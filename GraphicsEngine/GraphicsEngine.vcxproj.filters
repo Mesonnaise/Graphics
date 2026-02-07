@@ -69,12 +69,6 @@
     <ClInclude Include="ShaderObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Surface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Swapchain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,9 +78,6 @@
     <ClInclude Include="Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Swapchain2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -94,6 +85,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DescriptorPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Worker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Swapchain2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -143,12 +143,6 @@
     <ClCompile Include="ShaderObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Surface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Swapchain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -158,9 +152,6 @@
     <ClCompile Include="Exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Swapchain2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -168,6 +159,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DescriptorPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Worker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Swapchain2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

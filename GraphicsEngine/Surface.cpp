@@ -2,10 +2,12 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include<GLFW/glfw3.h>
 #include<GLFW/glfw3native.h>
+#include"Instance.h"
 #include "Surface.h"
 
 namespace Engine{
-  Surface::Surface(InstancePtr ins,GLFWwindow *window):mInstance(ins){
+
+  Surface::Surface(std::shared_ptr<Instance> ins,GLFWwindow *window):mInstance(ins){
     VkWin32SurfaceCreateInfoKHR info={
       .sType=VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
       .pNext=nullptr,

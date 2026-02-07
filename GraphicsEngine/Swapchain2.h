@@ -4,7 +4,7 @@
 #include<array>
 #include<tuple>
 #include"Device.h"
-#include"Surface.h"
+#include"Window.h"
 #include"Image.h"
 #include"ImageView.h"
 
@@ -24,7 +24,7 @@ namespace Engine{
 
 
     DevicePtr mDevice=nullptr;
-    SurfacePtr mSurface=nullptr;
+    WindowPtr mWindow=nullptr;
 
     std::array<Chain,2> mChains;
 
@@ -33,7 +33,7 @@ namespace Engine{
 
   protected:
     //ImageCount will always be clamped to the supported min and max image count
-    Swapchain2(DevicePtr &device,SurfacePtr &surface,uint32_t imageCount);
+    Swapchain2(DevicePtr &device,WindowPtr &window,uint32_t imageCount);
 
     void CreateSwapchain(uint32_t swapIndex,VkSwapchainKHR oldSwapchain);
     void GetSwapchainImages(uint32_t swapIndex);
@@ -46,8 +46,8 @@ namespace Engine{
     bool OutstandingFences(uint32_t swapIndex);
 
   public:
-    static auto Create(DevicePtr &device,SurfacePtr surface,uint32_t imageCount=0){
-      auto p=new Swapchain2(device,surface,imageCount);
+    static auto Create(DevicePtr &device,WindowPtr window,uint32_t imageCount=0){
+      auto p=new Swapchain2(device,window,imageCount);
       return std::shared_ptr<Swapchain2>(p);
     }
 

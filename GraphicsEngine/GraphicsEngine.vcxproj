@@ -40,10 +40,10 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="ShaderObject.h" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="Swapchain.h" />
     <ClInclude Include="Swapchain2.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Allocator.cpp" />
@@ -66,10 +66,10 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="ShaderObject.cpp" />
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="Swapchain.cpp" />
     <ClCompile Include="Swapchain2.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
